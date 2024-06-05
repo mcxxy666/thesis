@@ -62,17 +62,59 @@ of informatics must obey rules given by each department.
 \section{Introduction}\label{sec-intro}	
 % Here the main text starts
 
+\paragraph{Background}
+
+In the realm of concurrent communication, designing and implementing secure communication protocols is a critical challenge. to ensure the security and correctness of communications, various protocols have been defined. However, these protocols are often difficult to understand and implement correctly. Even in relatively simple protocols, very subtle errors can occur, potentially leading to severe security vulnerabilities and system failures. For example, Abadi and Needham (1996) discussed several practical issues in the design of cryptographic protocols in their study, demonstrating that even well-known protocols can harbor subtle yet serious flaws \cite{?}.
+
+
+Pi-calculus is a mathematical model used to describe and analyze concurrent systems. Developed by Robin Milner in the early 1990s \cite{?}, pi-calculus allows the representation of processes that can change their structure during execution. It extends the capabilities of earlier process calculi by introducing the concept of channel names as first-class citizens, enabling dynamic communication topologies. Pi-calculus provides a robust framework for modeling and reasoning about the behavior of complex systems, particularly those involving mobile and dynamic communication patterns. Its theoretical foundation has been influential in the design of various communication protocols and verification methods.
+
+However, pi-calculus has security issues because it lacks mechanisms for securely handling and encrypting messages, which is why spi-calculus was introduced to enhance security by incorporating cryptographic operations., spi-calculus extends π-calculus by incorporating symmetric key encryption to enhance message security\cite{?}. In spi-calculus, channels are generalized, and messages are encrypted to effectively prevent unauthorized access and tampering. Spi-calculus supports the transmission of names and channels and introduces encryption and decryption operations, enabling the modeling and analysis of complex security protocols. By using encryption, spi-calculus ensures that in an open communication environment, only authorized entities can access and manipulate the transmitted information, significantly enhancing communication security \cite{?}.
+
 \paragraph{Problem setting}
-Most current communication protocols are designed based on pi-calculus and spi-calculus. However, protocol verification cannot handle some of the more commonly used but complex applications today, such as pricing systems.
+Until now, many communication protocols are designed based on pi-calculus and spi-calculus. However, protocol verification cannot handle some of the more commonly used but complex applications today, such as pricing systems.
+
+
+In modern e-commerce and financial transactions, pricing systems play a crucial role. These systems are used to determine the transaction prices between buyers and sellers, serving as a core mechanism in market trading. In such systems, buyers need to obtain sellers' quotes and compare them with their own expected prices to make informed trading decisions. Due to price fluctuations and changing market conditions, timely and accurate transmission of pricing information is vital for both buyers and sellers.
+
+Moreover, the accuracy and security of pricing systems directly impact the fairness and transparency of transactions. If pricing information is distorted or maliciously tampered with during transmission, it could lead to unfair trades and harm the interests of market participants. Therefore, ensuring that communication protocols within pricing systems can reliably and accurately transmit information while preventing malicious attacks is essential for the proper functioning of the market.
+
+
 
 \paragraph{Challenges}
+
 1. In pricing systems, the relationships between numbers are very important, and programmers need such relationships to ensure system correctness. It is very difficult for existing communication protocols to express these relationships.
 
-2. And in pricing systems, it is crucial for buyers and sellers to successfully transmit messages to each other. However, in some existing concurrent communication protocols, channels can be used multiple times, which may lead to message distortion.
+2. In pricing systems, it is crucial for buyers and sellers to successfully transmit messages to each other. However, in some existing concurrent communication protocols, channels can be used multiple times, which may lead to message distortion.
+
+
+
+To prevent these issues, researchers have developed both static and dynamic methods. For instance, one dynamic approach is the use of corresponding assertions. This technique involves inserting assertions into the program to ensure consistency and correctness of communication and data between different threads. Corresponding assertions check specific conditions at runtime, capturing potential concurrency errors by inserting assertions at critical communication points, ensuring that any inconsistencies or potential issues can be detected promptly \cite{?}. This method is advantageous due to its flexibility and real-time monitoring capabilities, allowing developers to dynamically monitor and verify the correctness of communications during execution.
+
+Another method is session types. This static approach defines type systems for communication protocols, ensuring that communication follows a predefined pattern. Session types can detect many potential errors at compile-time, thereby enhancing the security and reliability of the system. Session types not only define the structure and sequence of communications but also allow for static analysis of data flows, ensuring that interactions between different processes adhere to the predefined protocol specifications. This method's advantage lies in its ability to identify and correct errors during compilation, preventing many runtime errors \cite{?}.
+
+
+
 
 
 \paragraph{Solutions}
+
+By introducing a new communication protocol language that can easily express complex relationships between variables, we can better ensure the correctness and security of the system. This new method can not only address the limitations of existing methods but also improve the understanding and implementation accuracy of communication protocols.
+
 Based on spi-calculus, I have constructed a type system that incorporates both refinement types and linear channels. In this system, users can freely insert assertions, making it easier to describe the protocols they consider correct.
+
+
+
+
+
+
+To address the limitations of existing methods in practical applications, this paper proposes a new communication protocol language that introduces more flexible and powerful language features, aiming to improve system correctness and security. Specifically, this new method includes the following key aspects:
+
+1. Refinement type and Flexible Assertion Mechanism\\
+The new communication protocol language supports not only string-type message transmission but also numeric types. By using refinement types, it introduces comparison operators such as equality, inequality, greater-than, and less-than, making it easy to perform numeric comparisons within the protocol. For example, in a pricing system, buyers need to know the sellers' prices and compare them with their own expected prices. In this case, being able to directly express and compare numeric relationships within the protocol greatly enhances the accuracy and efficiency of the system. Additionally, by inserting assertions at critical points, we can monitor and verify the system's state in real-time, quickly identify and fix potential issues, and thereby enhance the system's stability and reliability.
+
+2. Linear Channels\\
+To ensure the uniqueness and security of communications, the new language introduces the concept of linear channels. A linear channel means that each channel can only be used once, preventing reuse and potential security risks. With the help of linear channels, developers can design more reliable concurrent systems, avoiding race conditions and data consistency issues that arise from channel reuse in traditional communication protocols. For instance, in resource management systems, access requests to each resource can be strictly controlled through linear channels, ensuring that each resource is handled by only one request at a time, thus enhancing system reliability and security. Furthermore, linear channels can prevent information leakage and intrusion by attackers.
 
 
 In the following sections, the standard structure of a thesis is shown, and
