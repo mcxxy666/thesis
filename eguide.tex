@@ -30,9 +30,15 @@
 \maketitle					% Output title page
 
 \begin{eabstract}				% Abstract in English
-In modern e-commerce and financial transactions, communication protocols play a crucial role in ensuring the security and accuracy of information exchange. Traditional protocols, often based on pi-calculus and spi-calculus, struggle to handle complex applications such as pricing systems where the relationships between numbers are vital for system correctness. These protocols also face issues such as message distortion due to the reusable nature of channels.
+In modern e-commerce and financial transactions, communication protocols play a crucial role in ensuring the security and accuracy of information exchange. Traditional protocols, often based on pi-calculus and spi-calculus, struggle to handle complex applications such as pricing systems where the relationships between numbers are vital for system correctness. These protocols also face issues such as server overload due to the reusable nature of channels.
 
-This paper proposes an improved type system based on spi-calculus, incorporating refinement types and linear channels. Through refinement types, numbers are introduced into the system, enabling comparisons between numeric values. Additionally, programmers are allowed to insert assertions at any point in the system, enhancing the flexibility of the verification process. Our approach introduces linear channels, where each channel can only be used once, preventing message distortion and ensuring the accuracy of message transmission. Finally, through proofs, we demonstrate that our refined type system significantly improves the accuracy and reliability of communication protocols in pricing systems.
+
+
+Refinement types allow for the precise specification of properties more than simple types, thereby enhancing the expressiveness of the type system. For example, using refinement types, we can guarantee that a particular integer is greater than or less than a certain value, to support the verification of complex logical conditions . This paper proposes an improved type system based on spi-calculus, incorporating refinement types. Through refinement types, numbers are introduced into the system, enabling comparisons between numeric values and expressing more complex properties, which are essential for applications requiring detailed numerical analysis. Additionally, programmers are allowed to insert assertions at any point in the system, enhancing the flexibility and robustness of the verification process. To express protocols that communicate different types, we incorporate linear channels into our type system. By using linear channels, we can guarantee that each channel is used only once, which prevents server overload and ensures the accuracy and integrity of message transmission. 
+
+As a case study, this paper applied our type system to verify the properties of a protocol used in a pricing system, demonstrating its practical applicability. Finally, through type soundness proofs, we demonstrate that our refined type system significantly improves the accuracy and reliability of communication protocols in pricing systems.
+
+
 
 \par\bigskip\centerline{\bf NOTE}
 \begin{quote}
