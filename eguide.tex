@@ -118,14 +118,15 @@
 
 \begin{eabstract}				% Abstract in English
 
-  In modern e-commerce and financial transactions, communication protocols play a crucial role in ensuring the security and accuracy of information exchange. Traditional protocols, often based on pi-calculus and spi-calculus, struggle to handle complex applications such as pricing systems where the relationships between numbers are vital for system correctness. These protocols also face issues such as server overload due to the reusable nature of channels.
+  In modern e-commerce and financial transactions, communication protocols play a crucial role in ensuring the security and accuracy of information exchange. Bugs in these protocols often lead to severe financial losses and compromised user trust. Several methods for ensuring the correctness of protocols have been proposed. These methods allow users to formalize a protocol using formal calculus (e.g., $\pi$-calculus and spi-calculus) to verify the formalized protocol. However, it is often difficult to apply these methods to verify functional properties that involve predicates over communicated values.
+
 
 
 
 
 Refinement types improve the expressiveness of the type system by allowing for the precise specification of properties beyond those of simple types. For example, using refinement types, we can specify that a particular integer must be greater than or less than a certain value, thereby enabling the verification of complex logical conditions. 
 
-This paper proposes an improved type system based on spi-calculus, incorporating refinement types. Traditionally, spi-calculus could only transmit string-type information. In the new type system, spi-calculus is allowed to transmit integer-type information. By introducing refinement types, it enables comparisons between numeric values and the expression of more complex properties, which are essential for applications requiring detailed numerical analysis. Additionally, programmers are allowed to insert assertions at any point in the system, enhancing the flexibility and robustness of the verification process. To express protocols that involve communication of different types, we incorporate linear channels into our type system. By using linear channels, we can guarantee that each channel is used only once, which prevents server overload and ensures the accuracy and integrity of message transmission. 
+This thesis proposes a well type-based method for ensuring protocol correctness. Concretely, our type system is equipped with refinement types and linear channels. Traditionally, spi-calculus could only transmit string-type information. In the new type system, spi-calculus is allowed to transmit integer-type information. By introducing refinement types, it enables comparisons between numeric values and the expression of more complex properties, which are essential for applications requiring detailed numerical analysis. Additionally, programmers are allowed to insert assertions at any point in the system, enhancing the flexibility and robustness of the verification process. To express protocols that involve communication of different types, we incorporate linear channels into our type system. By using linear channels, we can guarantee that each channel is used only once, which prevents server overload and ensures the accuracy and integrity of message transmission. 
 
 As a case study, this paper applied our type system to verify the properties of a protocol used in a pricing system, demonstrating its practical applicability. Finally, through type soundness proofs, we demonstrate that our refined type system significantly improves the accuracy and reliability of communication protocols in pricing systems. 
 
@@ -144,25 +145,25 @@ As a case study, this paper applied our type system to verify the properties of 
 
 \section{Introduction}\label{sec-intro}		% Here the main text starts
 
-\paragraph{Background}
+\subsection{Background}
 
-In the realm of concurrent communication, designing and implementing secure communication protocols is a critical challenge. to ensure the security and safety of communications, various protocols have been defined. However, these protocols are often difficult to understand and implement correctly. Even in relatively simple protocols, very subtle errors can occur, potentially leading to severe security vulnerabilities and system failures. For example, Abadi and Needham (1996) discussed several practical issues in the design of cryptographic protocols in their study, demonstrating that even well-known protocols can harbor subtle yet serious flaws \cite{?}.
+In the realm of concurrent communication, designing and implementing secure communication protocols is a critical challenge. To ensure the security and safety of communications, various protocols have been defined. However, these protocols are often difficult to understand and implement correctly. Even in relatively simple protocols, very subtle errors can occur, potentially leading to severe security vulnerabilities and system failures. For example, \textit{Abadi and Needham (1996)}discussed several practical issues in the design of cryptographic protocols in their study, demonstrating that even well-known protocols can harbor subtle yet serious flaws \cite{?}.
 
 
-Pi-calculus is a mathematical model used to describe and analyze communication protocol. Developed by Robin Milner in the early 1990s \cite{?}, pi-calculus allows the representation of processes that can change their structure during execution. It extends the capabilities of earlier process calculi by introducing the concept of channel names as first-class citizens, enabling dynamic communication topologies. Pi-calculus provides a robust framework for modeling and reasoning about the behavior of complex systems, particularly those involving mobile and dynamic communication patterns. Its theoretical foundation has been influential in the design of various communication protocols and verification methods.
+$\pi$-calculus is a mathematical model used to describe and analyze communication protocol. Developed by Robin \textit{Milner} in the early 1990s \cite{?}, $\pi$-calculus allows the representation of processes that can change their structure during execution. It extends the capabilities of earlier process calculi by introducing the concept of channel names as first-class citizens, enabling dynamic communication topologies. $\pi$-calculus provides a robust framework for modeling and reasoning about the behavior of complex systems, particularly those involving mobile and dynamic communication patterns. Its theoretical foundation has been influential in the design of various communication protocols and verification methods.
 
-Pi-calculus has security issues because it lacks mechanisms for securely handling and encrypting messages, which is why spi-calculus was introduced to enhance security by incorporating cryptographic operations, spi-calculus extends $\pi$-calculus by incorporating symmetric key encryption to enhance message security\cite{?}. In spi-calculus, channels are generalized, and messages are encrypted to effectively prevent unauthorized access and tampering. Spi-calculus supports the transmission of names and channels and introduces encryption and decryption operations, enabling the modeling and analysis of complex security protocols. By using encryption, spi-calculus ensures that in an open communication environment, only authorized entities can access and manipulate the transmitted information, significantly enhancing communication security \cite{?}.
+$\pi$-calculus has security issues because it lacks mechanisms for securely handling and encrypting messages, which is why spi-calculus was introduced to enhance security by incorporating cryptographic operations, spi-calculus extends $\pi$-calculus by incorporating symmetric key encryption to enhance message security\cite{?}. In spi-calculus, channels are generalized, and messages are encrypted to effectively prevent unauthorized access and tampering. Spi-calculus supports the transmission of names and channels and introduces encryption and decryption operations, enabling the modeling and analysis of complex security protocols. By using encryption, spi-calculus ensures that in an open communication environment, only authorized entities can access and manipulate the transmitted information, significantly enhancing communication security \cite{?}.
 
 However, protocol verification cannot handle some of the more commonly used but complex applications today, such as pricing systems. In modern e-commerce and financial transactions, pricing systems play a crucial role. These systems are used to determine the transaction prices between buyers and sellers, serving as a core mechanism in market trading. In such systems, buyers need to obtain sellers' quotes and compare them with their own expected prices to make informed trading decisions. Due to price fluctuations and changing market conditions, timely and accurate transmission of pricing information is vital for both buyers and sellers.
 Moreover, the accuracy and security of pricing systems directly impact the fairness and transparency of transactions. If pricing information is distorted or maliciously tampered with during transmission, it could lead to unfair trades and harm the interests of market participants. Therefore, ensuring that communication protocols within pricing systems can reliably and accurately transmit information while preventing malicious attacks is essential for the proper functioning of the market.
 
-\paragraph{Challenges}
+\subsection{Challenges}
 1. In pricing systems, the relationships between numbers are very important, and programmers need such relationships to ensure system correctness. Spi-calculus can not express these relationships.
 
 2. In pricing systems, it is crucial for buyers and sellers to successfully transmit messages to each other. However, in Spi-calculus channels can be used multiple times, which may lead to message distortion.
 
 
-\paragraph{Exsiting work}
+\subsection{Exsiting work}
 To prevent these issues, researchers have developed both static and dynamic methods. For instance, one dynamic approach is the use of corresponding assertions. This technique involves inserting assertions into the program to ensure consistency and correctness of communication and data between different threads. Corresponding assertions check specific conditions at runtime, capturing potential concurrency errors by inserting assertions at critical communication points, ensuring that any inconsistencies or potential issues can be detected promptly \cite{?}. This method is advantageous due to its flexibility and real-time monitoring capabilities, allowing developers to dynamically monitor and verify the correctness of communications during execution.
 
 Another method is session types. This static approach defines type systems for communication protocols, ensuring that communication follows a predefined pattern. Session types can detect many potential errors at compile-time, thereby enhancing the security and reliability of the system. Session types not only define the structure and sequence of communications but also allow for static analysis of data flows, ensuring that interactions between different processes adhere to the predefined protocol specifications. This method's advantage lies in its ability to identify and correct errors during compilation, preventing many runtime errors \cite{?}.
@@ -171,11 +172,11 @@ Another method is session types. This static approach defines type systems for c
 
 
 
-\paragraph{Solutions}
+\subsection{Solutions}
 
-By introducing a new communication protocol language that can easily express complex relationships between variables, we can better ensure the correctness and security of the system. This new method can not only address the limitations of existing methods but also improve the understanding and implementation accuracy of communication protocols.
+By introducing a new communication protocol language that can easily express complex relationships between variables. This new method can not only address the limitations of existing methods but also improve the understanding and implementation accuracy of communication protocols.
 
-Based on spi-calculus, I have constructed a type system that incorporates both refinement types and linear channels. In this system, users can freely insert assertions, making it easier to describe the protocols they consider correct.
+Based on spi-calculus, I have constructed a type system that incorporates both refinement types and linear channels, we can better ensure the correctness and security of the system In this system, users can freely insert assertions, making it easier to describe the protocols they consider correct.
 
 
 
@@ -183,6 +184,24 @@ Based on spi-calculus, I have constructed a type system that incorporates both r
 
 \section{Overview}\label{sec-structure}
 \subsection{Motivating Example}
+In our pricing system example, several key symbols and operations are crucial for understanding the protocol:
+\begin{itemize}
+  \item \(\Code{ch}!\) and \(\Code{ch}?\): These represent send and receive operations on the channel \(\Code{ch}\), which is used for communication between the buyer and seller.
+  \item \(\nonce\): A nonce is a unique value used to ensure freshness in communication, preventing replay attacks.
+  \item \(\chq\), \(\chr\): These are additional channels used for quoting and result communication, respectively.
+  \item \(\newP{\price}\), \(\newP{\chr}\): These denote the creation of new names (variables), such as \(\price\) for the bid price and \(\chr\) for the result channel.
+  \item \(\{M\}_K\): This denotes the encryption of message \(M\) with key \(K\), ensuring the confidentiality of the message.
+  \item \(\decryptP{M}{x}{K}\): This represents the decryption of message \(M\) into variable \(x\) using key \(K\), verifying the message's integrity and authenticity.
+  \item \(\assertP{\phi}\): An assertion that the condition \(\phi\) holds. This is a critical feature for static checking within the protocol, allowing the system to enforce specific constraints.
+  \item \(\checkP{\phi}\): A check to ensure that the condition \(\phi\) holds, used for validation within the protocol.
+  \item \(\iteP{\phi}{P}{Q}\): An if-then-else construct, which executes process \(P\) if condition \(\phi\) is true, otherwise it executes process \(Q\).
+\end{itemize}
+
+These symbols and operations are integral to the communication protocol, allowing for secure and correct message exchanges between the buyer and seller in the pricing system
+
+In the pricing system, the comparison between numerical values is crucial. The seller needs to compare the buyer's price  to determine whether to complete the transaction. The assertion that the  price$(\price)$ is greater than the cost price $(\costprice)$ is vital for ensuring system security. This assertion enables static checking, which is essential for maintaining the integrity of the protocol. To facilitate these comparisons, refinement types introduce more complex logic for comparing numerical values.
+
+Additionally, it is important that channels are linear, meaning $\chr$ and $\chq $ can only be used once. This ensures that each communication step is unique and prevents issues such as message distortion or reuse, enhancing the overall reliability of the protocol.
 \begin{align*}
     \Code{System(k,ch, \costprice)} \doteq&\  \Code{Buyer(k,ch,\costprice)} \  || \  \Code{Seller(k,ch, \costprice)}
     \\\Code{Buyer(k,ch, \costprice)} \doteq&\  \Code{ch}?(\nonce, \chq).\newP{\price}.\newP{\chr}.\chq!\{(\nonce, \price, \chr)\}_\Code{k}.\chr?\Code{msg}.
@@ -192,15 +211,16 @@ Based on spi-calculus, I have constructed a type system that incorporates both r
     \\&\iteP{\price < \costprice \lor \price < \exprice}{\chr!\fail.\zero}{\chr!``Succ''.\mathtt{O}}
 \end{align*}
 
-\subsection{Type Judgement}
-\paragraph{Syntax Sugar}
+Consider the following auction example that consists of two subprocesses \Code{Buyer} and \Code{Seller}, which are parameterized by 
+a shared key (\Code{k}) and  channel (\Code{ch}) that is only visible within the authorized auction participants, and a public cost price ($\Code{p_{cost}}$) of the product. 
 
-\begin{align*}
-    \Code{ch}?(x, y).P \doteq&\ \Code{ch}?M.\splitP{M}{x_1}{x_2}.P
-    \\\iteP{\phi}{P_1}{P_2} \doteq&\ \checkP{\phi}.P_1 ~||~ \checkP{\neg \phi}.P_2
-    \\\decryptP{\Code{c}}{(x, y)}{\Code{k}}.P \doteq&\ \decryptP{\Code{c}}{M}{\Code{k}}.\splitP{M}{x}{y}.P
-    \\\Code{b} \doteq& \ \rawnuot{b}{\top}
-\end{align*}
+The \Code{Buyer} first receives a random number \Code{n} (nonce in cryptography literature) and channel used for quote ($\Code{ch_{quote}}$) 
+ from channel \Code{ch}, then generate the quote price \Code{p} and a channel used to receive auction result ($\Code{ch_{result}}$). After encrypting the quote price $\Code{p}$, channel $\Code{ch_{result}}$, and the nonce $\Code{n}$ with shared $\Code{key}$, the $\Code{Buyer}$ send this encrypted message to the \Code{Seller}, then waits on channel $\Code{ch_{result}}$ for the result message (\Code{msg}) from the \Code{Seller}'s side. If the \Code{msg} is equal to "Succ", the safety assertion checks that the quote \Code{p} must greater than the public cost price ($\Code{p_{cost}}$). Then the \Code{Buyer} process terminates normally.
+ 
+The \Code{Seller} first generate the expected price $\Code{p_{expected}}$, nonce \Code{n}, and channel used for quote $\Code{ch_{quote}}$. Then send nonce \Code{n} and channel $\Code{ch_{quote}}$ to \Code{Buyer} via channel \Code{ch}, next \Code{Seller} receives ciphertext message \Code{cmsg} from the channel  $\Code{ch_{quote}}$, to decrypt the ciphertext message \Code{cmsg} using process decrypt to get nonce $\Code{n'}$, quote price $\Code{p}$ and channel used to receive auction result $\Code{ch_{result}}$. Then check that \Code{Seller}'s own generated nonce \Code{n} is equal to nonce \Code{n'} or not. Here we need to make sure the nonce \Code{n} is equal to \Code{n'}, which indicates the received massage is the expected response of previous message.  If the quote \Code{p} is small than the public cost price ($\Code{p_{cost}}$) and the quote price \Code{p} is small than the expected price $\Code{p_{expected}}$, the \Code{Seller} will use channel $\Code{ch_{result}}$ to send "Fail" to the \Code{Buyer}, then end the process. Otherwise, the \Code{Seller} will use channel $\Code{ch_{result}}$ to send "Succ" to the \Code{Buyer}, then ends the process.
+
+
+\subsection{Type Judgement}
 
 {\small
 \begin{align*}
@@ -360,6 +380,9 @@ $\Gamma_1 ~|~ \Delta_1 \vdash \Code{ch}!(n, \chq).\chq?\Code{cmsg}.....$
 
 \section{Language}\label{sec-structure}
 \subsection{Syntax}
+
+In this section, we introduce the syntax of our type system, which is based on an extension of spi-calculus, shown in \autoref{fig:synatx}. The main extensions include the addition of integers in messages, the introduction of assertions in processes, and the use of refinement types for qualifiers. The syntax includes variables, qualifiers, messages, and processes, each defined as follows:
+
 \begin{figure}[h!]
 \centering
 {\small
@@ -376,9 +399,73 @@ $\Gamma_1 ~|~ \Delta_1 \vdash \Code{ch}!(n, \chq).\chq?\Code{cmsg}.....$
     \label{fig:synatx}
 \end{figure}
 
-To formalize our approach, we first introduce \langname{} shown in \autoref{fig:synatx}, an extension of $\phi$-calculus with numerical safety assertions.
+
+
+\paragraph{Variables}:
+Variables are represented by \( x, y, z, f, \ldots \). These variables can hold different types of data throughout the execution of the process.
+
+\paragraph{Qualifiers}:
+Qualifiers (\(\phi\)) are used to express logical conditions within the system. The possible forms of qualifiers are:
+\[
+\phi ::= \bot ~|~ \top ~|~ M_1 = M_2 ~|~ M_1 < M_2 ~|~ \neg \phi ~|~ \phi \land \phi ~|~ \phi \lor \phi
+\]
+\begin{itemize}
+    \item \(\bot\) and \(\top\) represent false and true, respectively.
+    \item \(M_1 = M_2\) and \(M_1 < M_2\) are comparisons between messages.
+    \item \(\neg \phi\), \(\phi \land \phi\), and \(\phi \lor \phi\) represent logical negation, conjunction, and disjunction.
+\end{itemize}
+
+\paragraph{Messages}:
+Messages (\(K, M, N\)) are the basic units of data exchanged in the system, defined as:
+\[
+K, M, N ::= x ~|~ (M, N) ~|~ \{M\}_K ~|~ \mathbb{n}
+\]
+\begin{itemize}
+    \item \(x\) is a variable.
+    \item \((M, N)\) is a pair of messages.
+    \item \(\{M\}_K\) denotes a message \(M\) encrypted with key \(K\).
+    \item \(\mathbb{n}\) represents an integer.
+\end{itemize}
+This extension allows the system to handle integer messages, whereas traditional spi-calculus only supported string messages.
+
+\paragraph{Processes}:
+Processes (\(P, Q\)) describe the computation and communication behaviors in the system, defined as:
+    \begin{alignat*}{2}
+    \\\text{\textbf{}} & \quad & P, Q ::= \quad & \mathbf{0} ~|~ \letP{x}{M}{P} ~|~ x!y.P ~|~ x?y.P  ~|~ \assertP{\phi}.P ~|~(P_1 ~||~ P_2) ~|~ \newP{x}P \\
+   &\quad&\quad& ~|~ \newP{cx}P ~|~ \decryptP{M}{x}{K}.P ~|~ \splitP{M}{x}{y}.P 
+    ~|~ \checkP{\phi}.P
+  \end{alignat*}
+\begin{itemize}
+    \item \(\mathbf{0}\): The null process, representing inactivity.
+    \item \(\letP{x}{M}{P}\): Let-binding, assigns message \(M\) to variable \(x\) in process \(P\).
+    \item \(x!y.P\): Output, sends message \(y\) on channel \(x\) and continues as \(P\).
+    \item \(x?y.P\): Input, receives a message on channel \(x\) and binds it to \(y\), then continues as \(P\).
+    \item \(\assertP{\phi}.P\): Assertion, checks the qualifier \(\phi\) and proceeds as \(P\) if true. This allows static checks to be inserted at any point in the process.
+    \item \((P_1 ~||~ P_2)\): Parallel composition, runs processes \(P_1\) and \(P_2\) concurrently.
+    \item \(\newP{x}P\): Restriction, creates a new name \(x\) and uses it in process \(P\).
+    \item \(\newP{cx}P\): Creates a new linear channel \(cx\) for unique use in process \(P\).
+    \item \(\decryptP{M}{x}{K}.P\): Decryption, decrypts message \(M\) with key \(K\) and binds the result to \(x\), then continues as \(P\).
+    \item \(\splitP{M}{x}{y}.P\): Splits message \(M\) into components \(x\) and \(y\), then continues as \(P\).
+    \item \(\checkP{\phi}.P\): Conditional check, proceeds as \(P\) if qualifier \(\phi\) holds.
+\end{itemize}
+This extension allows the system to insert assertions at any point in the process, enabling static checks.\\
+This syntax provides a solid base for creating and checking complex communication protocols in our refinement type system, It allows for accurate specification and evaluation of numerical and logical properties.
+
 
 \subsection{Operational Semantics}
+In this section, we detail the small-step operational semantics of our type system, which is an extension of spi-calculus. The operational semantics define how processes evolve step-by-step.
+
+\subsubsection{Definition and Notation}
+
+The operational semantics are given in \autoref{fig:semantics}. In this figure:
+\begin{itemize}
+    \item \(\Psi\) represents a multiset of processes.
+    \item \(N\) is a set of names.
+    \item \(C\) is a set of channels.
+\end{itemize}
+
+We use the notation \(\Psi_1 \to \Psi_2\) to indicate that the process set \(\Psi_1\) reduces to the process set \(\Psi_2\) in one step. We write $\to^*$ for
+the reflexive and transitive closure of $\to$.
 
 \begin{figure}[h!]
 \centering
@@ -402,8 +489,40 @@ To formalize our approach, we first introduce \langname{} shown in \autoref{fig:
     \label{fig:semantics}
 \end{figure}
 
-The small-step operational semantics of \langname{} is given in \autoref{fig:semantics}, where $\Psi$ is a multiset of processes, N is a set of names,C is a set ofchannels. We write $\Psi_1 \to \Psi_2$ if process set $\Psi_1$ reduce to process set $\Psi_2$ in one step; we write $\to^*$ for
-the reflexive and transitive closure of $\to$.
+\begin{itemize}
+    \item \textbf{Communication}:
+
+    This rule describes the communication between a sender and a receiver. When a message \(z\) is sent on channel \(x\) and received by process \(P_1\), \(y\) is replaced by \(z\) in \(P_1\).
+
+    \item \textbf{Parallel Composition}:
+
+    This rule allows two parallel processes to be separated into individual processes.
+
+    \item \textbf{Generate Fresh Variable}:
+
+    A new name \(y\) replaces \(x\) in process \(P\), with \(y\) being fresh and unique.
+
+    \item \textbf{Generate Channel }:
+
+    Similar to Generate fresh variable, but specifically for channels.
+
+    \item \textbf{Check Assertion}:
+
+    This rule checks the condition \(\phi\). If \(\phi\) holds, the process proceeds as \(P\); otherwise, the process is discarded.
+
+    \item \textbf{Assert Assertion}:
+
+    This rule asserts the condition \(\phi\). If \(\phi\) holds, the process proceeds as \(P\); otherwise, it results in an assertion failure.
+
+    \item \textbf{Decryption}:
+
+    This rule handles the decryption of a message. If the keys match, the message \(M\) replaces \(x\) in \(P\); otherwise, the process is discarded.
+    
+    \item \textbf{Split}:
+
+This rule splits a pair of messages into its components and substitutes them into the process \(P\). Specifically, \(M_1\) is substituted for \(x\) and \(M_2\) is substituted for \(y\).
+
+\end{itemize}
 
 \paragraph{Safety} A process P is safe iff $\langle\{P\}, \emptyset, \emptyset\rangle \not\longrightarrow^* \textbf{AssertFailure} $ .
 
@@ -411,6 +530,7 @@ the reflexive and transitive closure of $\to$.
 \section{Typing}\label{sec-structure}
 \subsection{Types}
 
+In this section, we introduce the syntax of types used in our refinement type system, including base types, uses, basic types, refinement types, and type contexts. The detailed syntax is shown in \autoref{fig:type-syntax}..
 \begin{figure}[h!]
 \centering
     \begin{alignat*}{2}
@@ -424,9 +544,39 @@ the reflexive and transitive closure of $\to$.
     \label{fig:type-syntax}
 \end{figure}
 
-The syntax of the refinement type is shown in \autoref{fig:type-syntax}.
+\paragraph{Base Types}
+Base types (\(b\)) represent the fundamental data types in the system. These include nonces, integers, and strings, among others.
 
-\ \\ \ \\
+\paragraph{Use}
+Use (\(u\)) specifies how channels are used:
+\begin{itemize}
+    \item \(?\): Input
+    \item \(!\): Output
+    \item \(\ddagger\): Linear use
+\end{itemize}
+
+\paragraph{Basic Types}
+Basic types (\(t\)) build upon base types and include constructs like channel types, pairs, encrypted types, and key types.
+\paragraph{Refinement Types}
+Refinement types (\(\tau\)) add logical conditions to base types, enhancing their expressiveness.
+\begin{itemize}
+    \item \(\rawnuot{b}{\phi}\): Base type \(b\) refined by logical condition \(\phi\)
+    \item \(\chT{\tau, u }\): Channel type refined by \(\tau\) and use \(u\)
+    \item \(x{:}\tau \times \tau\): Pair type
+    \item \(\{\tau\}\): Encrypted type
+    \item \(\keyT{\tau}\): Key type
+\end{itemize}
+
+\paragraph{Type Context}
+Type contexts (\(\Gamma|\Delta\)) maintain typing environments for variables and channels.
+\begin{itemize}
+    \item \(\Gamma\): Context for variables
+    \item \(\Delta\): Context for channels
+\end{itemize}
+
+This types are crucial for our approach, allowing us to perform accurate type checking and verify complex communication protocols effectively.
+
+\ \\ \ 
 \begin{prooftree}
 \hypo{}
 \infer1[\textsc{}]{
@@ -453,9 +603,20 @@ Linear(\{t'\})
 }
 \end{prooftree}
 \ \\ \ \\ 
-$Nonlinear(t)$  can be defined as $\neg Linear(t)$
+$Nonlinear(t)$  can be defined as $\neg Linear(t)$.
+We define the concept of linearity in types using proof rules. Linearity ensures that certain resources are used exactly once, which is crucial for maintaining system integrity in our type system.\\ 
+ \paragraph{Channel Types}: A channel type \(\chT{t, u}\) is linear if it is explicitly marked as such.
+   
+ \paragraph{Pair Types}: A pair type \(t_1 \times t_2\) is linear if either \(t_1\) or \(t_2\) is linear.
+   
+ \paragraph{Encrypted Types}: An encrypted type \(\{t'\}\) is linear if the type \(t'\) is linear.
+
+Additionally, a type \(t\) can be considered non-linear if it is not linear, defined as \(Nonlinear(t) \equiv \neg Linear(t)\).
+
 
 \subsection{Typing Denotation}
+We describe the denotation of types and type contexts within our type system. This involves defining the type erasure function and the type context denotation. The detailed syntax is shown below.\\
+
 
 \newcommand{\basicvdash}{\vdash_{\Code{basic}}}
 
@@ -476,6 +637,8 @@ $Nonlinear(t)$  can be defined as $\neg Linear(t)$
     \eraserf{x{:}\tau,\Gamma} \doteq x{:}\eraserf{\tau},\eraserf{\Gamma}
 \end{align*}
 }
+
+Type erasure is a function that maps refinement types to their corresponding basic types:
 \begin{flalign*}
   &\text{\textbf{Type Context Denotation}}
   & \fbox{$\denotation{\Gamma} \in \phi $}
@@ -488,23 +651,34 @@ $Nonlinear(t)$  can be defined as $\neg Linear(t)$
 \end{align*}
 }
 
+Type context denotation maps a type context to a logical formula.
 \newcommand{\R}[1]{\Code{R}({#1})}
 
 
 \subsection{Typing Rules}
 
+
 $$
 \left(\Delta_1 \oplus \Delta_2\right)(x)= \begin{cases}\Delta_1(x) & \text { if } x \in \operatorname{dom}\left(\Delta_1\right)\backslash \operatorname{dom}\left(\Delta_2\right) \\ \Delta_2(x) & \text { if } x \in \operatorname{dom}\left(\Delta_2\right) \backslash \operatorname{dom}\left(\Delta_1\right) \\ \Delta_1(x) \oplus \Delta_2(x) & \text { if } x\in \operatorname{dom}\left(\Delta_1\right) \cap \operatorname{dom}\left(\Delta_2\right) \\ \text {undefined } & \text { if } x \notin \operatorname{dom}\left(\Delta_1\right) \cup \operatorname{dom}\left(\Delta_2\right)\end{cases}
 $$
+\paragraph{Context Combination}
+This equation defines how two type contexts \(\Delta_1\) and \(\Delta_2\) are combined using the \(\oplus\) operator. The combination is defined for each variable \(x\) as follows:
+\begin{itemize}
+\item  If \(x\) is in the domain of \(\Delta_1\) but not in \(\Delta_2\), the combined context takes the value from \(\Delta_1\).
+\item  If \(x\) is in the domain of \(\Delta_2\) but not in \(\Delta_1\), the combined context takes the value from \(\Delta_2\).
+\item  If \(x\) is in both \(\Delta_1\) and \(\Delta_2\), the combined context applies the \(\oplus\) operator to the values from both contexts.
+\item If \(x\) is in neither context, the combined context is undefined for \(x\).
+\end{itemize}
 
 $$
 \operatorname{Ch}\left(t, !\right)+\operatorname{Ch}(t, ?)=\operatorname{Ch}\left(t, \ddagger\right)
 $$
+\paragraph{Channel Composition}
+This equation defines how output (\(!\)) and input (\(?\)) channel types are combined into a linear channel type (\(\ddagger\)). \\
+When an output channel of type \(t\) and an input channel of type \(t\) are combined, they form a linear channel of type \(t\). This ensures that the channel can only be used once for communication, 
 
 
 
-\begin{figure}[!b]
-{\small
 
 \begin{flalign*}
  &\text{\textbf{Subtyping}} & \fbox{$\Gamma \vdash \tau <: \tau$}
@@ -530,6 +704,13 @@ $$
 \ctx{\Gamma}{\Delta} \vdash \chT{\tau_1,?} <: \chT{\tau_2,?}
 }
 \end{prooftree}
+- \paragraph{Subtyping Base Types}: The rule \textsc{Sub-Base} states that \(\{v: t ~|~\phi_1\}\) is a subtype of \(\{v: t ~|~\phi_2\}\) if \(\phi_1\) implies \(\phi_2\) under the context \(\Gamma\).
+
+ \paragraph{Subtyping for Output}: The rule \textsc{Sub-Ch-Out} indicates that an output channel of type \(\chT{\tau_1,!}\) is a subtype of an output channel of type \(\chT{\tau_2,!}\) if \(\tau_1\) is a subtype of \(\tau_2\).
+
+ \paragraph{Subtyping for Input}: The rule \textsc{Sub-Ch-In} states that an input channel of type \(\chT{\tau_1,?}\) is a subtype of an input channel of type \(\chT{\tau_2,?}\) if \(\tau_2\) is a subtype of \(\tau_1\).
+
+\begin{figure}
 {\small
 \begin{flalign*}
  &\text{\textbf{Message Typing}} & \fbox{$ \ctx{\Gamma}{\Delta} \vdash M : \tau$}
@@ -589,20 +770,30 @@ $$
 \ctx{\Gamma}{\Delta_2} \vdash e : \tau
 }
 \end{prooftree}
-\ \\ \ \\ \ \\
-{\small
+\ \\ \ \\ 
+\paragraph{MT-Var1} If \((x, \tau) \in \Gamma\), then \(x\) has type \(\tau\) in the context \(\Gamma\) with an empty channel context \(\emptyset\).
+
+
+
+\paragraph{MT-Var2} In the context \(\Gamma\) with \(x{:}\tau\) in \(\Delta\), \(x\) has type \(\tau\).
+
+\paragraph{MT-Pair1} If \(m\) has type \(\tau_1\) in \(\Delta_1\) and \(n\) has type \(\tau_2\) in the extended context \(\Gamma,x{:}\tau_1\), then the pair \((m, n)\) has type \(x{:}\tau_1 \times \tau_2\) in the combined context \(\Delta_1 \oplus \Delta_2\).
+
+\paragraph{MT-Pair2} Similar to MT-Pair1, but with \(n\) having type \(\tau_2\) in the context \(\Gamma\) and \(x{:}\tau_1\) in \(\Delta_2\).
+
+\paragraph{MT-Encrypt} If \(M\) has type \(\tau\) in \(\Delta\) and \(K\) is a key of type \(\keyT{\tau_k}\) with \(\eraserf{\tau_k} = b\), then the encrypted message \(\{M\}_K\) has type \(\{\tau\}\).
+
+\paragraph{T-Sub} If \(e\) has type \(\tau_1\) and \(\tau_1\) is a subtype of \(\tau_2\), then \(e\) can also be typed as \(\tau_2\).
+
+\paragraph{T-Delta} If \(e\) has type \(\tau_1\) in \(\Delta_1\) and \(\Delta_1 \subseteq \Delta_2\), then \(e\) also has type \(\tau\) in \(\Delta_2\).
+\end{figure}
+
+\begin{figure}
 \begin{flalign*}
  &\text{\textbf{Process Typing}} & \fbox{$\Gamma | \Delta \vdash P$}
 \end{flalign*}
-}
 \\ \
 
-\begin{comment}
-\end{comment}
-}
-\end{figure}
-
-\begin{figure}[!b]
 {\small
 \begin{prooftree}
 \hypo{}
@@ -757,8 +948,41 @@ Linear(\eraserf{\tau})
 \end{prooftree}
 }
 
+\end{figure}
+
+
+\begin{figure}
+
+\paragraph{T-Zero} The process \(0\) (inaction) is always well-typed in an empty context.
+
+\paragraph{T-Out} If \(x\) is a channel of type \(\chT{\tau_1, !}\), \(y\) is of type \(\tau_2\), and \(\tau_2\) is a subtype of \(\tau_1\), then the output process \(x!y.P\) is well-typed in the context \(\Gamma\) and \(\Delta\).
+
+\paragraph{T-In1} If \(x\) is a channel of type \(\chT{\tau_1, ?}\), and \(y\) is of type \(\tau_2\) which is not linear, then the input process \(x?y.P\) is well-typed in the context \(\Gamma\) and \(\Delta\).
+
+\paragraph{T-In2} If \(x\) is a channel of type \(\chT{\tau_1, ?}\), and \(y\) is of type \(\tau_2\) which is linear, then the input process \(x?y.P\) is well-typed in the context \(\Gamma\) and \(\Delta\).
+
+\paragraph{T-New1} If \(x\) is not linear and \(P\) is well-typed under \(\Gamma, x: \tau\), then the process \((\nu x).P\) is well-typed in the context \(\Gamma\) and \(\Delta\).
+
+\paragraph{T-New2} If \(x\) is a linear channel and \(P\) is well-typed under \(\Gamma\) and \(\Delta, x: \chT{\tau, \ddagger}\), then the process \((\nu x).P\) is well-typed.
+
+\paragraph{T-Assert} If \(P\) is well-typed in the context \(\Gamma\) and \(\Delta\), and \(\phi\) holds in the denotation of \(\Gamma\) and \(\Delta\), then the assertion process \(\assertP{\phi}.P\) is well-typed.
+
+\paragraph{T-Check} If \(P\) is well-typed under \(\Gamma, \_: \nuot{unit}{\phi}\) and \(\Delta\), then the checking process \(\checkP{\phi}.P\) is well-typed.
+
+\paragraph{T-Par} If \(P_1\) is well-typed in \(\Delta_1\) and \(P_2\) is well-typed in \(\Delta_2\), then the parallel process \(P_1 || P_2\) is well-typed in the combined context \(\Delta_1 \oplus \Delta_2\).
+
+\paragraph{T-Decrypt1} If \(M\) has type \(\{\tau\}\) and \(k\) is a key of type \(\keyT{\tau}\), and \(\tau\) is not linear, then the decryption process \(\decryptP{M}{x}{k}.P\) is well-typed in the context \(\Gamma\) and \(\Delta\).
+
+\paragraph{T-Decrypt2} If \(M\) has type \(\{\tau\}\) and \(k\) is a key of type \(\keyT{\tau}\), and \(\tau\) is linear, then the decryption process \(\decryptP{M}{x}{k}.P\) is well-typed in the context \(\Gamma\) and \(\Delta\).
+
+\paragraph{T-Config} If all processes \(P_i\) are well-typed in their respective contexts, and the domains of \(\Gamma\) and \(\Delta\) are properly defined, then the configuration \(\langle\{P_1, ...,P_n \}, N, C\rangle\) is well-typed.
+
+\paragraph{T-Let1} If \(M\) has type \(\tau\) and \(P\) is well-typed under \(\Gamma, x{:}\tau\) and \(\Delta\), then the let-binding process \(\letP{x}{M}{P}\) is well-typed.
+
+\paragraph{T-Let2} If \(M\) has type \(\tau\) and \(P\) is well-typed under \(\Gamma\) and \(\Delta, x{:}\tau\), then the let-binding process \(\letP{x}{M}{P}\) is well-typed.
 
 \end{figure}
+
 
 
 
@@ -773,6 +997,7 @@ Linear(\eraserf{\tau})
 
 \paragraph{Proof}  According to typing rule \textsc{T-out}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{
 \ctx{\Gamma}{\Delta_1} \vdash x : \chT{\tau_1, !} \quad
@@ -784,6 +1009,7 @@ Linear(\eraserf{\tau})
 }
 
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since $\Gamma | \Delta \vdash x!y.P$, exists $\Delta_1 , \Delta_2 $ and $\Delta_3$ such that $\Delta_1 \oplus \Delta_2 \oplus \Delta_3=\Delta $ and $\Gamma|\Delta_1 \vdash x : \chT{\tau_1, !}$ , $ \Gamma|\Delta_2  \vdash y : \tau_2 $  $
 \Gamma|\Delta_3 \vdash P$ and $\Gamma | \Delta_2 \vdash \tau_2 <: \tau_1$ holds.
@@ -798,6 +1024,7 @@ Since $\Gamma | \Delta \vdash x!y.P$, exists $\Delta_1 , \Delta_2 $ and $\Delta_
 
 \paragraph{Proof}  According to typing rule \textsc{T-in1}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{
 \ctx{\Gamma}{\Delta_1} \vdash x : \chT{\tau_1, ?} \quad
@@ -810,6 +1037,7 @@ Since $\Gamma | \Delta \vdash x!y.P$, exists $\Delta_1 , \Delta_2 $ and $\Delta_
 \ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash x?y.P
 }
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since $\Gamma | \Delta \vdash x?y.P$, exists $\Delta_1$ and $\Delta_2 $ such that $\Delta_1 \oplus \Delta_2 =\Delta $ , $\Gamma|\Delta_1 \vdash x : \chT{\tau_1, ?}$ , $\neg Linear(\eraserf{\tau_1})$ ,$\Gamma, y : \tau_2|\Delta_2  \vdash P$ and $\Gamma|\Delta_1 \vdash \chT{\tau_1, ?} <: \chT{\tau_2, ?}$ holds
 \qed
@@ -818,6 +1046,7 @@ Since $\Gamma | \Delta \vdash x?y.P$, exists $\Delta_1$ and $\Delta_2 $ such tha
 \Gamma|\Delta_2, y : \tau_2  \vdash P$ $ Linear(\eraserf{\tau_1})$ ,$\Gamma, y : \tau_2|\Delta_2  \vdash P$ and $\Gamma|\Delta_1 \vdash \chT{\tau_1, ?} <: \chT{\tau_2, ?}$ holds.
 \paragraph{Proof}  According to typing rule \textsc{T-in2}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{
 \ctx{\Gamma}{\Delta_1} \vdash x : \chT{\tau_1, ?} \quad
@@ -831,6 +1060,7 @@ Linear(\eraserf{\tau_1})
 \ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash x?y.P
 }
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since $\Gamma | \Delta \vdash x?y.P$, then exists $\Delta_1$ and $\Delta_2 $ such that $\Delta_1 \oplus \Delta_2 =\Delta $ , $\Gamma|\Delta_1 \vdash x : \chT{\tau_1, ?}$ , $
 \Gamma|\Delta_2, y : \tau_2  \vdash P$ $ Linear(\eraserf{\tau_1})$ ,$\Gamma, y : \tau_2|\Delta_2  \vdash P$ and $\Gamma|\Delta_1 \vdash \chT{\tau_1, ?} <: \chT{\tau_2, ?}$ holds.
@@ -840,6 +1070,7 @@ Since $\Gamma | \Delta \vdash x?y.P$, then exists $\Delta_1$ and $\Delta_2 $ suc
 \Gamma|\Delta_2 \vdash P_2$ hold.
 \paragraph{Proof}  According to typing rule \textsc{T-Par}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{ 
 \ctx{\Gamma}{\Delta_1} \vdash P_1 \quad
@@ -849,6 +1080,7 @@ Since $\Gamma | \Delta \vdash x?y.P$, then exists $\Delta_1$ and $\Delta_2 $ suc
 \ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash P_1 {||} P_2
 }
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since $\Gamma | \Delta \vdash P_1||P_2$, then there exists $\Delta_1 \oplus \Delta_2 =\Delta $ such that $\Gamma|\Delta_1 \vdash P_1$ and $
 \Gamma|\Delta_2 \vdash P_2$ hold.
@@ -857,6 +1089,7 @@ Since $\Gamma | \Delta \vdash P_1||P_2$, then there exists $\Delta_1 \oplus \Del
 \paragraph{Lemma Inversion-New1}  If $\Gamma | \Delta \vdash (\nu \tau).P$, and $\tau$ is not of the form $\chT{\tau, \ddagger}$, then exists $\tau$ such that $\Gamma, x : \tau |\Delta \vdash P$ and $\neg Linear(\eraserf{\tau})$ hold.
 \paragraph{Proof}  According to typing rule \textsc{T-New1}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{
 \ctx{\Gamma, x: \tau}{\Delta} \vdash P \quad
@@ -865,6 +1098,7 @@ Since $\Gamma | \Delta \vdash P_1||P_2$, then there exists $\Delta_1 \oplus \Del
 \infer1[\textsc{T-New1}]{
 \ctx{\Gamma}{\Delta} \vdash (\nu x).P}
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since  $\Gamma | \Delta \vdash (\nu \tau).P$, and $\tau$ is not of the form $\chT{\tau, \ddagger}$, then exists $\tau$ such that $\Gamma, x : \tau |\Delta \vdash P$ and $\neg Linear(\eraserf{\tau})$ hold.
 \qed
@@ -872,6 +1106,7 @@ Since  $\Gamma | \Delta \vdash (\nu \tau).P$, and $\tau$ is not of the form $\ch
 \paragraph{Lemma Inversion-New2}  If $\Gamma | \Delta \vdash (\nu \tau).P$,$\tau$ is of the form $\chT{\tau, \ddagger}$, then exists $\tau$ such that $\Gamma |\Delta, x : \tau  \vdash P$ and $ Linear(\eraserf{\tau})$ hold.
 \paragraph{Proof}  According to typing rule \textsc{T-New2}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{
 \ctx{\Gamma}{\Delta, x: \chT{\tau, \ddagger}} \vdash P \quad
@@ -880,13 +1115,15 @@ Linear(\eraserf{\tau})
 \infer1[\textsc{T-New2}]{
 \ctx{\Gamma}{\Delta} \vdash (\nu x).P}
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since $\Gamma | \Delta \vdash (\nu \tau).P$,$\tau$ is of the form $\chT{\tau, \ddagger}$, then exists $\tau$ such that $\Gamma |\Delta, x : \tau  \vdash P$ and $ Linear(\eraserf{\tau})$ hold.
 \qed
 
 \paragraph{Lemma Inversion-Check}  If $\Gamma | \Delta \vdash \checkP{\phi}.P$, then exists $ \nuot{unit}{\phi} $ such that $\Gamma, \_:\nuot{unit}{\phi} | \Delta \vdash P$ hold.
 \paragraph{Proof}  According to typing rule \textsc{T-Check}
-\ \\ \ \\ \ 
+\ \\ \ \\ \
+\begin{center}
 \begin{prooftree}
 \hypo{ 
 \Gamma, \_: \nuot{unit}{\phi} |\Delta \vdash P}
@@ -894,6 +1131,7 @@ Since $\Gamma | \Delta \vdash (\nu \tau).P$,$\tau$ is of the form $\chT{\tau, \d
 \ctx{\Gamma}{\Delta} \vdash \checkP{\phi}.P
 }
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since  $\Gamma | \Delta \vdash \checkP{\phi}.P$, then exists $ \nuot{unit}{\phi} $ such that $\Gamma, \_:\nuot{unit}{\phi} | \Delta \vdash P$ hold.
 \qed
@@ -906,6 +1144,7 @@ hold.
 
 \paragraph{Proof}  According to typing rule \textsc{T-Assert}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{ 
 \ctx{\Gamma}{\Delta}\vdash P
@@ -917,6 +1156,7 @@ hold.
 \ctx{\Gamma}{\Delta} \vdash \assertP{\phi}.P
 }
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since  $\Gamma | \Delta \vdash \assertP{\phi}.P$, then exists $ x_i{:}t_i $ such that  $\Gamma | \Delta \vdash P$, 
 $\eraserf{\Gamma | \Delta} =\overline{x_i{:}t_i}$ 
@@ -928,6 +1168,7 @@ hold.
 \paragraph{Lemma Inversion-Decrypt1}  If $\Gamma |\Delta \vdash \decryptP{M}{x}{k}.P$, and $\Gamma (k)$ is not of the form $Key(\chT{\tau, \ddagger}) $,then exists $\tau$, $\Delta_1$ and $\Delta_2 $ such that $\Delta_1 \oplus \Delta_2 =\Delta $ ,  $\Gamma|\Delta_1 \vdash M : \{\tau\}$, $\Gamma \vdash k : \keyT{\tau}$, $\neg Linear(\eraserf{\tau}$) and  $\Gamma, x:\tau | \Delta_2  \vdash P $ hold.
 \paragraph{Proof}  According to typing rule \textsc{T-Decrypt1}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{
 \ctx{\Gamma}{\Delta_1} \vdash M : \{\tau\} \quad
@@ -940,6 +1181,7 @@ hold.
 \ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash \decryptP{M}{x}{k}.P
 }
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since $\Gamma |\Delta \vdash \decryptP{M}{x}{k}.P$, and $\Gamma (k)$ is not of the form $Key(\chT{\tau, \ddagger}) $,then exists $\tau$, $\Delta_1$ and $\Delta_2 $ such that $\Delta_1 \oplus \Delta_2 =\Delta $ ,  $\Gamma|\Delta_1 \vdash M : \{\tau\}$, $\Gamma \vdash k : \keyT{\tau}$, $\neg Linear(\eraserf{\tau}$) and  $\Gamma, x:\tau | \Delta_2  \vdash P $ hold.
 \qed
@@ -947,6 +1189,7 @@ Since $\Gamma |\Delta \vdash \decryptP{M}{x}{k}.P$, and $\Gamma (k)$ is not of t
 \paragraph{Lemma Inversion-Decrypt2}  If $\Gamma |\Delta \vdash \decryptP{M}{x}{k}.P$,and $\Gamma (k)$ is of the form $Key(\chT{\tau, \ddagger}) $, then exists $\tau$, $\Delta_1$ and $\Delta_2 $ such that $\Delta_1 \oplus \Delta_2 =\Delta $ ,   $\Gamma|\Delta_1 \vdash M : \{\tau\}$, $\Gamma \vdash k : \keyT{\tau}$, $ Linear(\eraserf{\tau}$ and  $\Gamma | \Delta_2, x:\tau  \vdash P $ hold.
 \paragraph{Proof}  According to typing rule \textsc{T-Decrypt2}
 \ \\ \ \\ \ 
+\begin{center}
 \begin{prooftree}
 \hypo{
 \ctx{\Gamma}{\Delta_1} \vdash M : \{\tau\} \quad
@@ -959,13 +1202,316 @@ Linear(\eraserf{\tau})
 \ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash \decryptP{M}{x}{k}.P
 }
 \end{prooftree}
+\end{center}
 \ \\ \ \\ \ 
 Since  $\Gamma |\Delta \vdash \decryptP{M}{x}{k}.P$,and $\Gamma (k)$ is of the form $Key(\chT{\tau, \ddagger}) $, then exists $\tau$, $\Delta_1$ and $\Delta_2 $ such that $\Delta_1 \oplus \Delta_2 =\Delta $ ,   $\Gamma|\Delta_1 \vdash M : \{\tau\}$, $\Gamma \vdash k : \keyT{\tau}$, $ Linear(\eraserf{\tau}$ and  $\Gamma | \Delta_2, x:\tau  \vdash P $ hold.
 \qed
 
 \paragraph{Substitution Lemma-$\Gamma$} If  $ \Gamma, x:S | \Delta \vdash t : T $ and $ \Gamma | \Delta \vdash  s:S,$  then $ \Gamma| \Delta \vdash [x \mapsto s ]t :T.  $
+\paragraph{Proof.}
+\paragraph{Case \textsc{MT-Var1}} For the \textsc{MT-Var1} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{(x, \tau) \in \Gamma'}
+\infer1[\textsc{MT-Var1}]{
+\ctx{\Gamma'}{\emptyset} \vdash x : \tau 
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+We know: 
+\begin{align*}
+  \Gamma' \text{ is }  \Gamma, x:S \\
+  \emptyset \text{ is } \Delta \\
+ x : \tau \text{ is }  t : T
+\end{align*}
+We need to prove: \\ if  $ \Gamma' | \emptyset \vdash x : \tau $ and $ \Gamma | \emptyset \vdash  s:S,$  then $ \Gamma| \emptyset \vdash [x \mapsto s ]x :\tau.  $\\ 
+Given $ \Gamma' | \emptyset \vdash x : \tau $, we have: 
+\begin{align*}
+    (x, \tau) \in \Gamma'
+\end{align*}
+By the definition of  $ \Gamma'$, we know:
+\begin{align*}
+    (x, \tau) \in (\Gamma, x:S)
+\end{align*}
+Therefore, $\tau = S$ \\ 
+We need to show  $ \Gamma| \emptyset \vdash [x \mapsto s ]x :\tau. $
+\begin{align*}
+    [x \mapsto s ]x = s
+\end{align*}
+Therefore, we need to show $ \Gamma | \emptyset \vdash  s:\tau$ \\
+Given $ \Gamma | \emptyset \vdash  s:S$ and  $\tau = S$, ,  it follows that: 
+\begin{align*}
+    \Gamma | \emptyset \vdash  s:\tau
+\end{align*}
+
+
+
+
+
+
+
+\paragraph{Case \textsc{MT-Var2}} For the \textsc{MT-Var2} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{}
+\infer1[\textsc{MT-Var2}]{
+\ctx{\Gamma'}{x{:}\tau} \vdash x : \tau 
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+we know:
+\begin{align*}
+  \Gamma' \text{ is }  \Gamma, x:S \\
+  x : \tau \text{ is } \Delta \\
+ x : \tau \text{ is }  t : T
+\end{align*}
+We need to prove: \\ If  $ \Gamma' | x: \tau \vdash x : \tau $ and $ \Gamma | x: \tau \vdash  s:S,$  then $ \Gamma| x: \tau \vdash [x \mapsto s ]x :\tau.  $\\
+The Substitution Lemma fails for the \textsc{MT-Var2} rule because the conflict of having \( x \) appear in both \(\Gamma'\) and \(\Delta\) mean that the lemma cannot be applied in this case. Therefore, the Substitution Lemma does not hold for the \textsc{MT-Var2} rule.
+
+
+\paragraph{Case \textsc{MT-Pair1}} For the \textsc{MT-Pair1} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{\ctx{\Gamma'}{\Delta_1} \vdash m :  \tau_1}
+\hypo{\ctx{\Gamma',x{:}\tau_1}{\Delta_2} \vdash n :  \tau_2}
+\infer2[\textsc{MT-Pair1}]{
+\ctx{\Gamma'}{\Delta_1 \oplus \Delta_2} \vdash (m, n) : x{:} \tau_1 \times  \tau_2
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+We know:
+\begin{align*}
+\Gamma'  \text{ is } \Gamma, x : S\\
+\Delta_1 \oplus \Delta_2 \text{ is } \Delta \\
+(m, n) : x{:}\tau_1 \times \tau_2 & \text{ is } t : T
+\end{align*}
+We need to prove: \\ if  $ \Gamma' | \Delta_1 \oplus \Delta_2  \vdash (m, n) : x{:}\tau_1 \times \tau_2 $ and $ \Gamma | \Delta_1 \oplus \Delta_2  \vdash  s:S,$ then $ \Gamma|\Delta_1 \oplus \Delta_2 \vdash [x \mapsto s ] (m, n) : x{:}\tau_1 \times \tau_2.$\\
+Given: 
+\begin{align*}
+\Gamma', x{:}\tau_1 | \Delta_2   \vdash n :  \tau_2
+\end{align*}
+We have 
+\begin{align*}
+\Gamma, x{:} S , :x{:}\tau_1 | \Delta_2  \vdash n :  \tau_2
+\end{align*}
+Therefore, $\tau_1 = S$ \\ 
+For $m$
+\begin{align*}
+\Gamma, x{:} S  | \Delta_1   \vdash m :  \tau_1
+\end{align*}
+Since $m$ does not contain $x$, the substitution $[x \mapsto s ]m = m$ \\ 
+Given $ \Gamma | \Delta_1 \oplus \Delta_2  \vdash  s:S,$ and $\tau_1 = S$, we can apply the substitution:
+\begin{align*}
+[x \mapsto s ] (m, n) = (m,[x \mapsto s ]n)
+\end{align*}
+By the \textsc{MT-Pair1} rule:
+\begin{align*}
+\Gamma | \Delta_1 \vdash m : \tau_1 \\
+\Gamma | \Delta_2 \vdash [x \mapsto s] n : \tau_2
+\end{align*}
+Therefore, we can derive:
+\begin{align*}
+\Gamma | \Delta_1 \oplus \Delta_2 \vdash (m, [x \mapsto s] n) : x{:}\tau_1 \times \tau_2
+\end{align*}
+Thus, we have shown that the Substitution Lemma holds for the \textsc{MT-Pair1} rule.
+
+
+\paragraph{Case \textsc{MT-Pair2}} For the \textsc{MT-Pair2} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{\ctx{\Gamma'}{\Delta_1} \vdash m :  \tau_1}
+\hypo{\ctx{\Gamma'}{\Delta_2,x{:}\tau_1} \vdash n :  \tau_2}
+\infer2[\textsc{MT-Pair2}]{
+\ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash (m, n) : x{:} \tau_1 \times  \tau_2
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+We know:
+\begin{align*}
+\Gamma'  \text{ is } \Gamma, x : S\\
+\Delta_1 \oplus \Delta_2 \text{ is } \Delta \\
+(m, n) : x{:}\tau_1 \times \tau_2 & \text{ is } t : T
+\end{align*}
+We need to prove: \\ if  $ \Gamma' | \Delta_1 \oplus \Delta_2  \vdash (m, n) : x{:}\tau_1 \times \tau_2 $ and $ \Gamma | \Delta_1 \oplus \Delta_2  \vdash  s:S,$ then $ \Gamma|\Delta_1 \oplus \Delta_2 \vdash [x \mapsto s ] (m, n) : x{:}\tau_1 \times \tau_2.$\\
+The Substitution Lemma fails for the \textsc{MT-Pair2} rule because it requires proving \( \Gamma | \Delta_2 \vdash [x \mapsto s] n : \tau_2 \), but we are given \( \Gamma' | \Delta_2, x{:}\tau_1 \vdash n : \tau_2 \). This implies a conflict of having \( x \) appear in both \(\Gamma'\) and \(\Delta\), meaning that the lemma cannot be applied in this case. Therefore, the Substitution Lemma does not hold for the \textsc{MT-Pair2} rule.
+
 
 \paragraph{Substitution Lemma-$\Delta$} If  $ \Gamma| \Delta, x:S \vdash t : T $ and $ \Gamma| \Delta \vdash  s:S,$  then $ \Gamma| \Delta \vdash [x \mapsto s ]t :T.  $
+
+\paragraph{Proof.}
+\paragraph{Case \textsc{MT-Var1}} For the \textsc{MT-Var1} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{(x, \tau) \in \Gamma}
+\infer1[\textsc{MT-Var1}]{
+\ctx{\Gamma}{\emptyset} \vdash x : \tau 
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+We know: 
+\begin{align*}
+  \emptyset \text{ is } \Delta, x : S \\
+ x : \tau \text{ is }  t : T
+\end{align*}
+We need to prove: \\ if  $ \Gamma | \emptyset \vdash x : \tau $ and $ \Gamma | \emptyset \vdash  s:S,$  then $ \Gamma| \emptyset \vdash [x \mapsto s ]x :\tau.  $\\ 
+According to the \textsc{MT-Var1} rule, we have:
+\begin{align*}
+  (x, \tau) \in \Gamma \\
+ \Gamma | \emptyset \vdash x : \tau
+\end{align*}
+We need to show:
+\begin{align*}
+\Gamma | \emptyset \vdash [x \mapsto s] x : \tau
+\end{align*}
+Applying the substitution:
+\begin{align*}
+[x \mapsto s] x = s
+\end{align*}
+Therefore, we need to prove:
+\begin{align*}
+\Gamma | \emptyset \vdash s : \tau
+\end{align*}
+ However, we are given:
+\begin{align*}
+\Gamma | \emptyset \vdash s : S
+\end{align*}
+The Substitution Lemma fails for the \textsc{MT-Var1} rule in this context because it requires proving \( \Gamma | \emptyset \vdash s : \tau \), but we are only given \( \Gamma | \emptyset \vdash s : S \). This type mismatch means the lemma cannot be applied in this case. Therefore, the Substitution Lemma does not hold for the \textsc{MT-Var1} rule.
+
+
+\paragraph{Case \textsc{MT-Var2}} For the \textsc{MT-Var2} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{}
+\infer1[\textsc{MT-Var2}]{
+\ctx{\Gamma}{x{:}\tau} \vdash x : \tau 
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+we know:
+\begin{align*}
+  x : \tau \text{ is } \Delta \\
+ x : \tau \text{ is }  t : T
+\end{align*}
+We need to prove: \\ If  $ \Gamma | x: \tau \vdash x : \tau $ and $ \Gamma | x: \tau \vdash  s:S,$  then $ \Gamma| x: \tau \vdash [x \mapsto s ]x :\tau.  $\\
+Applying the substitution:
+\begin{align*}
+[x \mapsto s ]x=s
+\end{align*}
+Therefore, we need to prove:
+\begin{align*}
+ \Gamma | x: \tau \vdash s : \tau
+\end{align*}
+Since $ \Gamma | x: \tau \vdash s:S $ and $ \tau = S $, it follows that:
+\begin{align*}
+\Gamma | x: \tau \vdash s : \tau
+\end{align*}
+Thus, the Substitution Lemma holds for the \textsc{MT-Var2} rule.
+
+
+
+\paragraph{Case \textsc{MT-Pair1}} For the \textsc{MT-Pair1} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{\ctx{\Gamma}{\Delta_1} \vdash m :  \tau_1}
+\hypo{\ctx{\Gamma,x{:}\tau_1}{\Delta_2} \vdash n :  \tau_2}
+\infer2[\textsc{MT-Pair1}]{
+\ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash (m, n) : x{:} \tau_1 \times  \tau_2
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+We know:
+\begin{align*}
+\Delta_1 \oplus \Delta_2 \text{ is } \Delta, x : S \\
+(m, n) : x{:}\tau_1 \times \tau_2 & \text{ is } t : T \\
+\Delta' \text{ is } \Delta_1 \oplus \Delta_2 \setminus x : S
+\end{align*}
+We need to prove: \\ if  $ \Gamma | \Delta_1 \oplus \Delta_2  \vdash (m, n) : x{:}\tau_1 \times \tau_2 $ and $ \Gamma | \Delta'  \vdash  s:S,$ then $ \Gamma|\Delta' \vdash [x \mapsto s ] (m, n) : x{:}\tau_1 \times \tau_2.$\\
+ According to the \textsc{MT-Pair1} rule, we have:
+\begin{align*}
+\Gamma| \Delta_1   \vdash m : \tau_1 \\
+\Gamma, x: \tau_1| \Delta_2    \vdash n : \tau_2
+\end{align*}
+ We need to show:
+\begin{align*}
+ \Gamma | \Delta_1 \oplus \Delta_2 \vdash [x \mapsto s] (m, n) : x{:}\tau_1 \times \tau_2
+\end{align*}
+Applying the substitution:
+\begin{align*}
+[x \mapsto s] (m, n) = (m, [x \mapsto s] n)
+\end{align*}
+Therefore, we need to prove:
+\begin{align*}
+ \Gamma | \Delta_1 \vdash m : \tau_1 \\
+\Gamma | \Delta_2 \vdash [x \mapsto s] n : \tau_2
+\end{align*}
+However, given the context $ \Gamma, x{:}\tau_1 $ implies that $ x $ appears in both $ \Gamma $ and $ \Delta $, leading to a situation where $ x $ has two different types simultaneously, which is not valid in a well-formed typing context.
+
+
+
+\paragraph{Case \textsc{MT-Pair2}} For the \textsc{MT-Pair2} rule:
+\vspace{8mm}
+\begin{center}
+\begin{prooftree}
+\hypo{\ctx{\Gamma}{\Delta_1} \vdash m :  \tau_1}
+\hypo{\ctx{\Gamma}{\Delta_2,x{:}\tau_1} \vdash n :  \tau_2}
+\infer2[\textsc{MT-Pair2}]{
+\ctx{\Gamma}{\Delta_1 \oplus \Delta_2} \vdash (m, n) : x{:} \tau_1 \times  \tau_2
+}
+\end{prooftree}
+\end{center}
+\vspace{8mm}
+We know:
+\begin{align*}
+\Delta_1 \oplus \Delta_2 \text{ is } \Delta, x : S \\
+(m, n) : x{:}\tau_1 \times \tau_2  \text{ is } t : T \\
+\Delta' \text{ is } \Delta_1 \oplus \Delta_2 \setminus x : S
+\end{align*}
+We need to prove: \\ if  $ \Gamma | \Delta_1 \oplus \Delta_2  \vdash (m, n) : x{:}\tau_1 \times \tau_2 $ and $ \Gamma | \Delta'  \vdash  s:S,$ then $ \Gamma|\Delta' \vdash [x \mapsto s ] (m, n) : x{:}\tau_1 \times \tau_2.$\\
+According to the \textsc{MT-Pair1} rule, we have:
+\begin{align*}
+\Gamma| \Delta_1   \vdash m : \tau_1 \\
+\Gamma| \Delta_2, x: \tau_1    \vdash n : \tau_2
+\end{align*}
+ Since$\Delta_1 \oplus \Delta_2 \text{ is } \Delta, x : S$ We know show$S=\tau_1$ \\
+ By the Substitution Lemma applied to $ n $:
+\begin{align*}
+  \Gamma | \Delta_2, x:S \vdash n : \tau_2 \implies \Gamma | \Delta_2 \vdash [x \mapsto s] n : \tau_2
+\end{align*}
+For $ m $, Since $ m $ does not contain $ x $, the substitution $ [x \mapsto s] m = m $. \\
+Given $ \Gamma | \Delta' \vdash s : S $, we need to show:
+\begin{align*}
+ \Gamma | \Delta' \vdash [x \mapsto s] (m, n) : x{:}\tau_1 \times \tau_2
+\end{align*}
+Applying the substitution, we get:
+\begin{align*}
+  [x \mapsto s] (m, n) = (m, [x \mapsto s] n)
+\end{align*}
+By the\begin{align*}
+\Gamma| \Delta_1   \vdash m : \tau_1 \\
+ \Gamma | \Delta_2 \vdash [x \mapsto s] n : \tau_2
+\end{align*} \textsc{MT-Pair2} rule:
+Therefore, we can derive:
+\begin{align*}
+   \Gamma | \Delta_1 \oplus \Delta_2 \vdash (m, [x \mapsto s] n) : x{:}\tau_1 \times \tau_2
+\end{align*}
+Thus, we have shown that the Substitution Lemma holds for the \textsc{MT-Pair2} rule.
+
+
+
 
 \paragraph{Preservation} For all $\langle\{P_1, ...,P_n \}, N, C\rangle \longrightarrow \langle\{P_1', ..., P_n' \}, N', C'\rangle$ and $\forall i. \Gamma | \Delta_i \vdash P_1, ...,P_n$ where $\mathit{DOM}(\bigoplus \Delta_i) = C$, then there exists $\Gamma'$ and $\{\Delta_i'\}$, such that, $\forall i. \Gamma' | \Delta_i' \vdash P_1', ..., P_n'$ and $\mathit{DOM}(\bigoplus \Delta_i') = C'$.
 
@@ -1196,5 +1742,15 @@ It follow from $\Delta_1' = \Delta_1 $ that  $DOM(\Delta_1') = C $ holds
 \section{Relative works}\label{sec-structure}
 
 \section{Conclusion}\label{sec-structure}
+
+\paragraph{Appendix}
+\paragraph{Syntax Sugar}
+
+\begin{align*}
+    \Code{ch}?(x, y).P \doteq&\ \Code{ch}?M.\splitP{M}{x_1}{x_2}.P
+    \\\iteP{\phi}{P_1}{P_2} \doteq&\ \checkP{\phi}.P_1 ~||~ \checkP{\neg \phi}.P_2
+    \\\decryptP{\Code{c}}{(x, y)}{\Code{k}}.P \doteq&\ \decryptP{\Code{c}}{M}{\Code{k}}.\splitP{M}{x}{y}.P
+    \\\Code{b} \doteq& \ \rawnuot{b}{\top}
+\end{align*}
 
  \end{document} 
